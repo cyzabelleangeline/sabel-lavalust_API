@@ -25,6 +25,16 @@ class Create_users_table {
                     'auto_increment' => TRUE,
                     'null'           => FALSE,
                 ],
+                'firstname' => [
+                    'type'       => 'VARCHAR',
+                    'constraint' => 100,
+                    'null'       => FALSE,
+                ],
+                'lastname' => [
+                    'type'       => 'VARCHAR',
+                    'constraint' => 100,
+                    'null'       => FALSE,
+                ],
                 'username' => [
                     'type'       => 'VARCHAR',
                     'constraint' => 100,

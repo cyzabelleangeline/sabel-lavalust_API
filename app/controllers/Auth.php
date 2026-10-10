@@ -92,7 +92,7 @@ class Auth extends Controller
             'is_active' => 1,
             'created_at' => date('Y-m-d H:i:s'),
         ]);
-        $user = $this->db->table('users')->where('id', $userId)->limit(1)->get();
+        $user = $this->db->table('users')->where('id', $userId)->limit(1)->get(PDO::FETCH_OBJ);
         if (!$user) {
             $this->api->respond_error('Account created, but sign-in could not be started. Please sign in.', 500);
         }

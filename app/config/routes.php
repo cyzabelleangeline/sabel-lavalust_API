@@ -54,6 +54,7 @@ $router->get('/api/products', 'Product::index');
 $router->get('/api/products/{id}', 'Product::show');
 $router->post('/api/products', 'Product::store');
 $router->put('/api/products/{id}', 'Product::update');
+$router->patch('/api/products/{id}', 'Product::update');
 $router->delete('/api/products/{id}', 'Product::destroy');
 
 $router->get('/create-migration/{migration_class}', 'MigrationController::create_migration');

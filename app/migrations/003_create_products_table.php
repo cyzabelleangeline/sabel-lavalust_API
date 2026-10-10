@@ -47,7 +47,7 @@ class Create_products_table
                     'default'    => 0,
                 ],
                 'created_at' => [
-                    'type'    => 'DATETIME',
+                    'type'    => 'TIMESTAMP',
                     'null'    => FALSE,
                     'default' => 'CURRENT_TIMESTAMP',
                 ],

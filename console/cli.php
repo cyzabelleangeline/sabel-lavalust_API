@@ -5,7 +5,7 @@
 define('APP_DIR', dirname(__DIR__, 1) . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR);
 define('PUBLIC_DIR', dirname(__DIR__, 1) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR);
 define('RUNTIME_DIR', dirname(__DIR__, 1) . DIRECTORY_SEPARATOR . 'runtime' . DIRECTORY_SEPARATOR);
-define('COMMANDS_DIR', APP_DIR . 'commands' . DIRECTORY_SEPARATOR);
+define('COMMANDS_DIR', APP_DIR . 'command' . DIRECTORY_SEPARATOR);
 
 // Command Registry
 $commands = [];
@@ -104,7 +104,7 @@ if (!isset($commands[$command])) {
 call_user_func($commands[$command]['handler'], $input, $flags, $input2);
 
 /**
- * Scan app/commands/ for classes that declare:
+ * Scan app/command/ and app/commands/ for classes that declare:
  *   public static $command     = 'name:of:command'
  *   public static $description = 'What this does'          (optional)
  *   public static $arguments   = ['--flag' => 'desc', ...]  (optional)
@@ -113,10 +113,19 @@ call_user_func($commands[$command]['handler'], $input, $flags, $input2);
  * Files that do not follow the convention are silently skipped.
  */
 function autoload_commands() {
-    if (!is_dir(COMMANDS_DIR)) return;
-
-    $files = glob(COMMANDS_DIR . '*.php');
+    $directories = [COMMANDS_DIR, APP_DIR . 'commands' . DIRECTORY_SEPARATOR];
+    $files = [];
+    foreach ($directories as $directory) {
+        if (is_dir($directory)) {
+            $files = array_merge($files, glob($directory . '*.php') ?: []);
+        }
+    }
+    $files = array_unique($files);
     if (empty($files)) return;
+
+    if (!defined('PREVENT_DIRECT_ACCESS')) {
+        define('PREVENT_DIRECT_ACCESS', true);
+    }
 
     foreach ($files as $file) {
         // Track classes defined before this require

@@ -49,16 +49,16 @@ class Product extends Controller
         $price = $input['price'] ?? 0;
         $quantity = $input['quantity'] ?? 0;
 
-        if ($product_name === '') {
-            $this->api->respond_error('Product name is required.', 400);
+        if ($product_name === '' || strlen($product_name) > 100) {
+            $this->api->respond_error('Product name is required and must be at most 100 characters.', 400);
         }
 
         if (!is_numeric($price) || (float) $price < 0) {
             $this->api->respond_error('Price must be a valid number.', 400);
         }
 
-        if (!is_numeric($quantity) || (int) $quantity < 0) {
-            $this->api->respond_error('Quantity must be a valid number.', 400);
+        if (!preg_match('/^\d+$/', (string) $quantity)) {
+            $this->api->respond_error('Quantity must be a non-negative whole number.', 400);
         }
 
         $now = date('Y-m-d H:i:s');
@@ -82,7 +82,9 @@ class Product extends Controller
     public function update($id)
     {
         $this->require_auth();
-        $this->api->require_method('PUT');
+        if (!in_array($_SERVER['REQUEST_METHOD'] ?? '', ['PUT', 'PATCH'], true)) {
+            $this->api->respond_error('Method Not Allowed', 405);
+        }
 
         $input = $this->api->body();
         $product_name = trim((string) ($input['product_name'] ?? ''));
@@ -93,6 +95,10 @@ class Product extends Controller
         $existing = $this->db->table('products')->where('id', $id)->limit(1)->get();
         if (!$existing) {
             $this->api->respond_error('Product not found.', 404);
+        }
+
+        if (array_key_exists('product_name', $input) && ($product_name === '' || strlen($product_name) > 100)) {
+            $this->api->respond_error('Product name must be between 1 and 100 characters.', 400);
         }
 
         $data = [];
@@ -108,8 +114,8 @@ class Product extends Controller
         if ($price !== null) {
             $data['price'] = number_format((float) $price, 2, '.', '');
         }
-        if ($quantity !== null && (!is_numeric($quantity) || (int) $quantity < 0)) {
-            $this->api->respond_error('Quantity must be a valid number.', 400);
+        if ($quantity !== null && !preg_match('/^\d+$/', (string) $quantity)) {
+            $this->api->respond_error('Quantity must be a non-negative whole number.', 400);
         }
         if ($quantity !== null) {
             $data['quantity'] = (int) $quantity;
