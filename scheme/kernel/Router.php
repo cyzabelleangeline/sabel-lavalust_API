@@ -438,6 +438,9 @@ class Router
         }
 
         if ($method === 'OPTIONS') {
+            // Preflight requests are handled before a controller is created,
+            // so load the API config here before adding CORS response headers.
+            lava_instance()->config->load('api');
             handle_cors();
             http_response_code(204);
             exit;
